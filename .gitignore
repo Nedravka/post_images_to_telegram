@@ -1,7 +1,7 @@
 venv/
 .idea/
 images/
-nasa_images/
-nasa_images_earth
+images/nasa_images/
+images/nasa_images_earth
 test.py
 .env

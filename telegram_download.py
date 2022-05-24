@@ -1,9 +1,12 @@
+import asyncio
 import datetime
 import os
+import time
 import json
 from urllib.parse import urlsplit, unquote
 from pathlib import Path
 import requests
+import telegram
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -77,10 +80,37 @@ def nasa_images(TOKEN, number_of_images, path):
             file.write(img.content)
 
 
+def generate_path_to_image(directory_with_images):
+    path_to_directory_with_images = Path(__file__).parent.joinpath(directory_with_images)
+    images_folders = os.walk(path_to_directory_with_images, topdown=False)
+    path_image_generator = (f'{root}\\{file_name}'
+                            for root, dirs, list_of_files in images_folders
+                            for file_name in list_of_files)
+    for path in path_image_generator:
+        yield path
+
+
+async def post_photo_to_telegram(path_to_image):
+    load_dotenv()
+    token_api_bot = os.getenv('telegram_bot_api')
+    bot = telegram.Bot(token_api_bot)
+    async with bot:
+        await bot.send_document(chat_id='@cosmo_and_me', document=open(path_to_image, 'rb'))
+
+
 if __name__ == "__main__":
-    path = 'images'
-    link_api = 'https://api.spacexdata.com/v3/launches/66'
-    test_url_file_extension = "https://example.com/txt/hello%20world.txt?v=9#python"
-    fetch_spacex_last_launch(link_api, 'images')
-    nasa_images(TOKEN, 3, 'nasa_images')
-    nasa_earth_images(TOKEN, 'nasa_images_earth', 1)
+    load_dotenv()
+    # path = 'images'
+    # link_api = 'https://api.spacexdata.com/v3/launches/66'
+    # test_url_file_extension = "https://example.com/txt/hello%20world.txt?v=9#python"
+    # fetch_spacex_last_launch(link_api, 'images/spasex')
+    # nasa_images(TOKEN, 3, 'images/nasa_images')
+    # nasa_earth_images(TOKEN, 'images/nasa_images_earth', 1)
+    path_to_image = generate_path_to_image('images')
+    while True:
+        try:
+            asyncio.run(post_photo_to_telegram(next(path_to_image)))
+            time.sleep(int(os.getenv('upload_photo_delay')))
+        except StopIteration:
+            print('Скрипт остановлен. Загрузите новые фото.')
+            break
