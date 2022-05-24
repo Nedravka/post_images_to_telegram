@@ -90,7 +90,7 @@ def nasa_images(TOKEN, number_of_images, path):
 
 def generate_path_to_image(directory_with_images):
     path_to_directory_with_images = Path(__file__).parent.\
-        joinpath(directory_with_images)
+                                    joinpath(directory_with_images)
     images_folders = os.walk(path_to_directory_with_images, topdown=False)
     path_image_generator = (f'{root}\\{file_name}'
                             for root, dirs, list_of_files in images_folders
