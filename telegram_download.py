@@ -1,13 +1,17 @@
 import asyncio
 import datetime
+import json
 import os
 import time
-import json
-from urllib.parse import urlsplit, unquote
 from pathlib import Path
-import requests
-import telegram
+from urllib.parse import unquote, urlsplit
+
 from dotenv import load_dotenv
+
+import requests
+
+import telegram
+
 
 load_dotenv()
 TOKEN = os.getenv('nasa_apod_api')
@@ -50,9 +54,12 @@ def nasa_earth_images(TOKEN, path, n):
 
     for i in dict_response[:n]:
         with open(f'{path}\\{i["image"]}.png', 'wb') as picture:
-            converted_date_to_datetime = (datetime.datetime.fromisoformat(i["date"])).strftime('%Y/%m/%d')
+            converted_date_to_datetime = (datetime.datetime.
+                                          fromisoformat(i["date"])).\
+                strftime('%Y/%m/%d')
 
-            earth_image = requests.get(f'{link_api_earth}archive/natural/{converted_date_to_datetime}/'
+            earth_image = requests.get(f'{link_api_earth}archive/natural/'
+                                       f'{converted_date_to_datetime}/'
                                        f'png/{i["image"]}.png',
                                        params=headers)
             earth_image.raise_for_status()
@@ -75,13 +82,15 @@ def nasa_images(TOKEN, number_of_images, path):
     dict_response_nasa_api = json.loads(response_nasa_api.text)
 
     for number, url_img in enumerate(dict_response_nasa_api):
-        with open(f'{path}\\nasa_img_{number}.{file_extension(url_img["url"])}', 'wb') as file:
+        with open(f'{path}\\nasa_img_{number}.'
+                  f'{file_extension(url_img["url"])}', 'wb') as file:
             img = requests.get(url_img['url'])
             file.write(img.content)
 
 
 def generate_path_to_image(directory_with_images):
-    path_to_directory_with_images = Path(__file__).parent.joinpath(directory_with_images)
+    path_to_directory_with_images = Path(__file__).parent.\
+        joinpath(directory_with_images)
     images_folders = os.walk(path_to_directory_with_images, topdown=False)
     path_image_generator = (f'{root}\\{file_name}'
                             for root, dirs, list_of_files in images_folders
@@ -95,14 +104,18 @@ async def post_photo_to_telegram(path_to_image):
     token_api_bot = os.getenv('telegram_bot_api')
     bot = telegram.Bot(token_api_bot)
     async with bot:
-        await bot.send_document(chat_id='@cosmo_and_me', document=open(path_to_image, 'rb'))
+        await bot.send_document(
+            chat_id='@cosmo_and_me',
+            document=open(path_to_image, 'rb')
+        )
 
 
 if __name__ == "__main__":
     load_dotenv()
     # path = 'images'
     # link_api = 'https://api.spacexdata.com/v3/launches/66'
-    # test_url_file_extension = "https://example.com/txt/hello%20world.txt?v=9#python"
+    # test_url_file_extension = "https://example.com/txt/" \
+    #                           "hello%20world.txt?v=9#python"
     # fetch_spacex_last_launch(link_api, 'images/spasex')
     # nasa_images(TOKEN, 3, 'images/nasa_images')
     # nasa_earth_images(TOKEN, 'images/nasa_images_earth', 1)
