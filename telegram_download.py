@@ -13,8 +13,7 @@ import requests
 import telegram
 
 
-load_dotenv()
-TOKEN = os.getenv('nasa_apod_api')
+LINK_API_SPACEX = 'https://api.spacexdata.com/v3/launches/66'
 
 
 def create_path(path):
@@ -40,12 +39,12 @@ def fetch_spacex_last_launch(link_api, path):
             picture.write(response.content)
 
 
-def nasa_earth_images(TOKEN, path, n):
+def nasa_earth_images(token_nasa_api, path, n):
     counter = 0
     create_path(path)
     link_api_earth = 'https://api.nasa.gov/EPIC/'
     headers = {
-        'api_key': TOKEN,
+        'api_key': token_nasa_api,
     }
 
     response = requests.get(f'{link_api_earth}api/natural', params=headers)
@@ -68,12 +67,12 @@ def nasa_earth_images(TOKEN, path, n):
             print('complete', counter)
 
 
-def nasa_images(TOKEN, number_of_images, path):
+def nasa_images(token_nasa_api, number_of_images, path):
     create_path(path)
 
     api = 'https://api.nasa.gov/planetary/apod'
     headers = {
-        'api_key': TOKEN,
+        'api_key': token_nasa_api,
         'count': number_of_images
     }
     response_nasa_api = requests.get(api, params=headers)
@@ -99,10 +98,8 @@ def generate_path_to_image(directory_with_images):
         yield path
 
 
-async def post_photo_to_telegram(path_to_image):
-    load_dotenv()
-    token_api_bot = os.getenv('telegram_bot_api')
-    bot = telegram.Bot(token_api_bot)
+async def post_photo_to_telegram(telegram_bot_api, path_to_image):
+    bot = telegram.Bot(telegram_bot_api)
     async with bot:
         await bot.send_document(
             chat_id='@cosmo_and_me',
@@ -110,20 +107,24 @@ async def post_photo_to_telegram(path_to_image):
         )
 
 
-if __name__ == "__main__":
+def main():
     load_dotenv()
-    # path = 'images'
-    # link_api = 'https://api.spacexdata.com/v3/launches/66'
-    # test_url_file_extension = "https://example.com/txt/" \
-    #                           "hello%20world.txt?v=9#python"
-    # fetch_spacex_last_launch(link_api, 'images/spasex')
-    # nasa_images(TOKEN, 3, 'images/nasa_images')
-    # nasa_earth_images(TOKEN, 'images/nasa_images_earth', 1)
+    token_nasa_api = os.getenv('nasa_apod_api')
+    telegram_bot_api = os.getenv('telegram_bot_api')
+    fetch_spacex_last_launch(LINK_API_SPACEX, 'images/spasex')
+    nasa_images(token_nasa_api, 3, 'images/nasa_images')
+    nasa_earth_images(token_nasa_api, 'images/nasa_images_earth', 1)
     path_to_image = generate_path_to_image('images')
     while True:
         try:
-            asyncio.run(post_photo_to_telegram(next(path_to_image)))
+            asyncio.run(post_photo_to_telegram(telegram_bot_api,
+                                               next(path_to_image)
+                                               ))
             time.sleep(int(os.getenv('upload_photo_delay')))
         except StopIteration:
             print('Скрипт остановлен. Загрузите новые фото.')
             break
+
+
+if __name__ == "__main__":
+    main()
