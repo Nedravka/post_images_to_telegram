@@ -54,7 +54,7 @@ Python3 должен быть уже установлен. Затем испол
 ## Ссылки
 Documentation NASA API: [https://api.nasa.gov/](https://api.nasa.gov/)
 
-Documentation SPASEX API: [https://docs.spacexdata.com](https://docs.spacexdata.com)
+Documentation SPACEX API: [https://docs.spacexdata.com](https://docs.spacexdata.com)
 
 Documentation Telegram bot API: [https://docs.djangoproject.com/en/1.11/](https://docs.djangoproject.com/en/1.11/)
    
