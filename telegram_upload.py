@@ -22,22 +22,28 @@ def generate_path_to_image(directory_with_images):
 async def post_photo_to_telegram(telegram_bot_api, path_to_image):
     bot = telegram.Bot(telegram_bot_api)
     async with bot:
-        await bot.send_document(
-            chat_id='@cosmo_and_me',
-            document=open(path_to_image, 'rb')
-        )
+
+        with open(path_to_image, 'rb') as picture:
+
+            await bot.send_document(
+                chat_id=os.getenv('CHAT_ID'),
+                document=picture
+            )
 
 
 def main():
     load_dotenv()
-    telegram_bot_api = os.getenv('telegram_bot_api')
+    telegram_bot_api = os.getenv('TELEGRAM_BOT_API')
     path_to_image = generate_path_to_image('images')
     while True:
         try:
-            asyncio.run(post_photo_to_telegram(telegram_bot_api,
-                                               next(path_to_image)
-                                               ))
-            time.sleep(int(os.getenv('upload_photo_delay', default=86400)))
+            asyncio.run(
+                post_photo_to_telegram(
+                    telegram_bot_api,
+                    next(path_to_image)
+                )
+            )
+            time.sleep(int(os.getenv('UPLOAD_PHOTO_DELAY', default=86400)))
         except StopIteration:
             print('Скрипт остановлен. Загрузите новые фото.')
             break
