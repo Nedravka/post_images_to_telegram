@@ -44,7 +44,7 @@ def fetch_nasa_images_earth(
         earth_image.raise_for_status()
 
         with open(
-                f'{path_to_save}\\{image["image"]}.png',
+                Path(f'{path_to_save}/{image["image"]}.png'),
                 'wb'
         ) as picture:
             picture.write(earth_image.content)
@@ -77,7 +77,7 @@ def fetch_nasa_images_space(
         image_extension = get_file_extension(url_img["url"])
 
         with open(
-                f'{path_to_save}\\nasa_img_{number}.{image_extension}',
+                Path(f'{path_to_save}/nasa_img_{number}.{image_extension}'),
                 'wb'
         ) as picture:
             picture.write(img.content)

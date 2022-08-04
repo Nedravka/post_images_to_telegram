@@ -12,9 +12,12 @@ def generate_path_to_images(directory_with_images):
     path_to_directory_with_images = Path(__file__).parent.\
                                     joinpath(directory_with_images)
     images_folder = os.walk(path_to_directory_with_images, topdown=False)
-    path_image_generator = (f'{root}\\{file_name}'
-                            for root, dirs, list_of_files in images_folder
-                            for file_name in list_of_files)
+
+    path_image_generator = (
+        Path(f'{root}/{file_name}')
+        for root, dirs, list_of_files in images_folder
+        for file_name in list_of_files
+    )
     for path in path_image_generator:
         yield path
 
@@ -49,5 +52,5 @@ def main():
             break
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -19,7 +19,7 @@ def fetch_spacex_last_launch(api_link, path):
         *_, img_name = image.split('/')
 
         with open(
-                f'{path}\\{img_name}',
+                Path(f'{path}/{img_name}'),
                 'wb'
         ) as picture:
             picture.write(last_launch_image.content)
