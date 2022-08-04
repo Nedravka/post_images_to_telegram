@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 import requests
 
-from utils import get_file_extension, save_images
+from utils import get_file_extension
 
 
 NASA_API_LINK = 'https://api.nasa.gov/'
@@ -43,11 +43,11 @@ def fetch_nasa_images_earth(
         )
         earth_image.raise_for_status()
 
-        save_images(
-            f'{path_to_save}\\{image["image"]}.png',
-            'wb',
-            earth_image
-        )
+        with open(
+                f'{path_to_save}\\{image["image"]}.png',
+                'wb'
+        ) as picture:
+            picture.write(earth_image.content)
 
 
 def fetch_nasa_images_space(
@@ -74,12 +74,13 @@ def fetch_nasa_images_space(
 
         img = requests.get(url_img['url'])
 
-        save_images(
-            f'{path_to_save}\\nasa_img_{number}.'
-            f'{get_file_extension(url_img["url"])}',
-            'wb',
-            img
-        )
+        image_extension = get_file_extension(url_img["url"])
+
+        with open(
+                f'{path_to_save}\\nasa_img_{number}.{image_extension}',
+                'wb'
+        ) as picture:
+            picture.write(img.content)
 
 
 if __name__ == '__main__':

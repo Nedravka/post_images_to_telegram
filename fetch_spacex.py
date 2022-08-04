@@ -2,7 +2,6 @@ from pathlib import Path
 
 import requests
 
-from utils import save_images
 
 API_SPACEX_LINK = 'https://api.spacexdata.com/v3/launches/66'
 
@@ -19,7 +18,11 @@ def fetch_spacex_last_launch(api_link, path):
         last_launch_image = requests.get(image)
         *_, img_name = image.split('/')
 
-        save_images(f'{path}\\{img_name}', 'wb', last_launch_image)
+        with open(
+                f'{path}\\{img_name}',
+                'wb'
+        ) as picture:
+            picture.write(last_launch_image.content)
 
 
 if __name__ == '__main__':
