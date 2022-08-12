@@ -22,28 +22,30 @@ def generate_path_to_images(directory_with_images):
         yield path
 
 
-async def post_photo_to_telegram(telegram_bot_api, path_to_image):
-    bot = telegram.Bot(telegram_bot_api)
+async def post_photo_to_telegram(telegram_bot_api_token, path_to_image, chat_id):
+    bot = telegram.Bot(telegram_bot_api_token)
     async with bot:
 
         with open(path_to_image, 'rb') as picture:
 
             await bot.send_document(
-                chat_id=os.getenv('CHAT_ID'),
+                chat_id=chat_id,
                 document=picture
             )
 
 
 def main():
     load_dotenv()
-    telegram_bot_api = os.getenv('TELEGRAM_BOT_API')
+    telegram_bot_api_token = os.getenv('TELEGRAM_BOT_API_TOKEN')
+    chat_id = os.getenv('CHAT_ID')
     path_to_image = generate_path_to_images('images')
     while True:
         try:
             asyncio.run(
                 post_photo_to_telegram(
-                    telegram_bot_api,
-                    next(path_to_image)
+                    telegram_bot_api_token,
+                    next(path_to_image),
+                    chat_id
                 )
             )
             time.sleep(int(os.getenv('UPLOAD_PHOTO_DELAY', default=86400)))
