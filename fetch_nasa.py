@@ -12,45 +12,46 @@ from utils import get_file_extension
 NASA_API_LINK = 'https://api.nasa.gov/'
 
 
-def fetch_nasa_images_earth(
+def fetch_earth_images(
         nasa_api_token,
         number_of_images,
         path_to_save
 ):
 
     Path(f'{path_to_save}').mkdir(parents=True, exist_ok=True)
-    nasa_api_parameters = {
+    api_parameters = {
         'api_key': nasa_api_token,
     }
 
-    nasa_api_response = requests.get(
+    api_response = requests.get(
         f'{NASA_API_LINK}EPIC/api/natural',
-        params=nasa_api_parameters
+        params=api_parameters
     )
-    nasa_api_response.raise_for_status()
-    nasa_api_response_json = nasa_api_response.json()
+    api_response.raise_for_status()
+    all_images_metadata = api_response.json()
 
-    for image in nasa_api_response_json[:number_of_images]:
+    for image_metadata in all_images_metadata[:int(number_of_images)]:
 
-        converted_date_to_datetime = (datetime.fromisoformat(image["date"])). \
-            strftime('%Y/%m/%d')
+        converted_date_to_datetime = (
+            datetime.fromisoformat(image_metadata["date"])
+        ).strftime('%Y/%m/%d')
 
-        earth_image = requests.get(
+        earth_image_url_response = requests.get(
             f'{NASA_API_LINK}EPIC/archive/natural/'
             f'{converted_date_to_datetime}/png/'
-            f'{image["image"]}.png',
-            params=nasa_api_parameters
+            f'{image_metadata["image"]}.png',
+            params=api_parameters
         )
-        earth_image.raise_for_status()
+        earth_image_url_response.raise_for_status()
 
         with open(
-                Path(f'{path_to_save}/{image["image"]}.png'),
+                Path(f'{path_to_save}/{image_metadata["image"]}.png'),
                 'wb'
         ) as picture:
-            picture.write(earth_image.content)
+            picture.write(earth_image_url_response.content)
 
 
-def fetch_nasa_images_space(
+def fetch_space_images(
         nasa_api_token,
         number_of_images,
         path_to_save
@@ -58,44 +59,45 @@ def fetch_nasa_images_space(
 
     Path(f'{path_to_save}').mkdir(parents=True, exist_ok=True)
 
-    nasa_api_parameters = {
+    api_parameters = {
         'api_key': nasa_api_token,
         'count': number_of_images
     }
-    nasa_api_response = requests.get(
+    api_response = requests.get(
         f'{NASA_API_LINK}planetary/apod',
-        params=nasa_api_parameters
+        params=api_parameters
     )
-    nasa_api_response.raise_for_status()
+    api_response.raise_for_status()
 
-    nasa_api_response_dict = nasa_api_response.json()
+    all_images_metadata = api_response.json()
 
-    for number, url_img in enumerate(nasa_api_response_dict):
+    for number, img_url in enumerate(all_images_metadata):
 
-        img = requests.get(url_img['url'])
+        image_url_response = requests.get(img_url['url'])
+        image_url_response.raise_for_status()
 
-        image_extension = get_file_extension(url_img["url"])
+        image_extension = get_file_extension(img_url["url"])
 
         with open(
                 Path(f'{path_to_save}/nasa_img_{number}.{image_extension}'),
                 'wb'
         ) as picture:
-            picture.write(img.content)
+            picture.write(image_url_response.content)
 
 
 if __name__ == '__main__':
 
     load_dotenv()
-    token_nasa_api = os.getenv('NASA_APOD_API')
+    nasa_api_token = os.getenv('NASA_APOD_API_TOKEN')
     number_of_images = os.getenv('NUMBER_OF_IMAGES', default=1)
 
-    fetch_nasa_images_space(
-        token_nasa_api,
+    fetch_space_images(
+        nasa_api_token,
         number_of_images,
         'images/nasa_images'
     )
-    fetch_nasa_images_earth(
-        token_nasa_api,
+    fetch_earth_images(
+        nasa_api_token,
         number_of_images,
         'images/nasa_images_earth'
     )

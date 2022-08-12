@@ -1,7 +1,6 @@
 venv/
 .idea/
 images/
-images/nasa_images/
-images/nasa_images_earth
 test.py
 .env
+__pycache__/
