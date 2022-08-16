@@ -37,7 +37,7 @@ async def post_photo_to_telegram(telegram_bot_api_token, path_to_image, chat_id)
 def main():
     load_dotenv()
     telegram_bot_api_token = os.getenv('TELEGRAM_BOT_API_TOKEN')
-    chat_id = os.getenv('CHAT_ID')
+    chat_id = os.getenv('TG_CHAT_ID')
     path_to_image = generate_path_to_images('images')
     while True:
         try:

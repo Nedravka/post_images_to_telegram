@@ -36,19 +36,19 @@ def fetch_earth_images(
             datetime.fromisoformat(image_metadata["date"])
         ).strftime('%Y/%m/%d')
 
-        earth_image_url_response = requests.get(
+        earth_image_response = requests.get(
             f'{NASA_API_LINK}EPIC/archive/natural/'
             f'{converted_date_to_datetime}/png/'
             f'{image_metadata["image"]}.png',
             params=api_parameters
         )
-        earth_image_url_response.raise_for_status()
+        earth_image_response.raise_for_status()
 
         with open(
                 Path(f'{path_to_save}/{image_metadata["image"]}.png'),
                 'wb'
         ) as picture:
-            picture.write(earth_image_url_response.content)
+            picture.write(earth_image_response.content)
 
 
 def fetch_space_images(
@@ -73,8 +73,8 @@ def fetch_space_images(
 
     for number, img_url in enumerate(all_images_metadata):
 
-        image_url_response = requests.get(img_url['url'])
-        image_url_response.raise_for_status()
+        image_response = requests.get(img_url['url'])
+        image_response.raise_for_status()
 
         image_extension = get_file_extension(img_url["url"])
 
@@ -82,7 +82,7 @@ def fetch_space_images(
                 Path(f'{path_to_save}/nasa_img_{number}.{image_extension}'),
                 'wb'
         ) as picture:
-            picture.write(image_url_response.content)
+            picture.write(image_response.content)
 
 
 if __name__ == '__main__':
