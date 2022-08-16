@@ -15,15 +15,15 @@ def fetch_spacex_last_launch(path):
     launch_metadata = api_response.json()
 
     for image in launch_metadata['links']['flickr_images']:
-        image_url_response = requests.get(image)
-        image_url_response.raise_for_status()
+        image_response = requests.get(image)
+        image_response.raise_for_status()
         *_, img_name = image.split('/')
 
         with open(
                 Path(f'{path}/{img_name}'),
                 'wb'
         ) as picture:
-            picture.write(image_url_response.content)
+            picture.write(image_response.content)
 
 
 if __name__ == '__main__':
